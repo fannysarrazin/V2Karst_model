@@ -10,22 +10,22 @@ The V2Karst model is written in matlab and is composed of 6 functions. This divi
 
 An overview of the structure of the V2Karst model is provided below, while further information on the usage of each function is provided in the function 'help'. Additionally, in-code comments explain the model equations.
 
- **V2Karst.m**<br />
+**- V2Karst.m**<br />
 This function simulates the V2Karst model and calls the other 5 functions (interception_routine.m, soil_epikarst_routine.m, Penman_Monteith.m, aerodynamic_resistance.m and LAI_seasonality.m)
 **This is the function that users need to call to simulate V2Karst.**
 
-**interception_routine.m**<br />
+**- interception_routine.m**<br />
 The function evaluates daily actual evaporation from canopy interception.
 
-**soil_epikarst_routine.m**
+**- soil_epikarst_routine.m**
 This function evaluates the daily soil and epikarst water balance.
 
-**Penman_Monteith.m**<br />
+**- Penman_Monteith.m**<br />
 This function evaluates the daily potential evapotranspiration using the Penman Monteith equation.
 
-**aerodynamic_resistance.m**<br />
+**- aerodynamic_resistance.m**<br />
 This function evaluates the daily aerodynamic resistance.
 
-**LAI_seasonality.m**<br />
+**- LAI_seasonality.m**<br />
 This function evaluates the daily value of LAI.
 
