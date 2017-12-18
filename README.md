@@ -4,7 +4,7 @@ V2Karst is a large-scale conceptual semi-distributed model that simulates daily 
 
 A complete description of VarKarst is provided [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in Sarrazin et al. (2017). If you make use of the V2Karst, please acknowledge these two articles.
 
-V2Karst is provided under the terms of the GNU General Public license version 3 and therefore **without warranty of any kind**.
+V2Karst is provided under the terms of the GNU General Public License version 3.0 and therefore **without warranty of any kind**.
 
 The V2Karst model is written in matlab and is composed of 6 functions. This division of the model in separate modules facilitates future model improvements and the testing of alternative model equations by users.
 
