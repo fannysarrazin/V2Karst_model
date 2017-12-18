@@ -1,6 +1,6 @@
 # V2Karst_model
 
-V2Karst is a large-scale conceptual semi-distributed model that simulates daily potential groundwater recharge in karst regions. The model includes an explicit representation of both karst and land cover properties, which allows to assess the combined impact of future changes in climate and land cover on karst groundwater recharge. The model builds on its previous version (Varkarst), which had a simple formulation of evapotranspiration and did not represent explicitly land cover processes.
+V2Karst is a large-scale conceptual semi-distributed model that simulates daily potential groundwater recharge in karst regions. The model includes an explicit representation of both karst and land cover properties, which allows to assess the combined impact of future changes in climate and land cover on karst groundwater recharge. The model builds on its previous version (Varkarst), which had a simple formulation of evapotranspiration and did not represent explicitly land cover properties.
 
 A complete description of VarKarst is provided [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in Sarrazin et al. (2017). If you make use of the V2Karst, please acknowledge these two articles.
 
@@ -10,7 +10,7 @@ The V2Karst model is written in matlab and is composed of 6 functions. This divi
 
 An overview of the structure of the V2Karst model is provided below, while further information on the usage of each function is provided in the function 'help'. Additionally, in-code comments explain the model equations.
 
- **V2Karst.m** 
+ **V2Karst.m**\ 
 This function simulates the V2Karst model and calls the other 5 functions (interception_routine.m, soil_epikarst_routine.m, Penman_Monteith.m, aerodynamic_resistance.m and LAI_seasonality.m)
 **This is the function that users need to call to simulate V2Karst.**
 
