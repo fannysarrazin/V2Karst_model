@@ -2,7 +2,7 @@
 
 V2Karst is a large-scale conceptual semi-distributed model that simulates daily potential groundwater recharge in karst regions. The model includes an explicit representation of both karst and land cover properties, which allows to assess the combined impact of future changes in climate and land cover on karst groundwater recharge. The model builds on its previous version (Varkarst), which had a simple formulation of evapotranspiration and did not represent explicitly land cover processes.
 
-A complete description of VarKarst is provided [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in Sarrazin et al. (2017). If you make use of the V2Karst, please acknowledge these two publications.
+A complete description of VarKarst is provided [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in Sarrazin et al. (2017). If you make use of the V2Karst, please acknowledge these two articles.
 
 V2Karst is provided under the terms of the GNU General Public license version 3 and therefore **without warranty of any kind**.
 
