@@ -10,7 +10,7 @@ The V2Karst model is written in matlab and is composed of 6 functions. This divi
 
 An overview of the structure of the V2Karst model is provided below, while further information on the usage of each function is provided in the function 'help'. Additionally, in-code comments explain the model equations.
 
- **V2Karst.m**\ 
+ **V2Karst.m**<br />
 This function simulates the V2Karst model and calls the other 5 functions (interception_routine.m, soil_epikarst_routine.m, Penman_Monteith.m, aerodynamic_resistance.m and LAI_seasonality.m)
 **This is the function that users need to call to simulate V2Karst.**
 
