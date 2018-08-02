@@ -1,11 +1,11 @@
 function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
           Cont_area_d,time_sim] =...
           V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,time,...
-          States_ini,Conc_flow,warmup)
+          States_ini,Conc_flow,warmup,Kt)
 
-% This function simulates the V2Karst model (Sarrazin et al., 2017), which
+% This function simulates the V2Karst model (Sarrazin et al., 2018), which
 % is a vegetation-recharge model for karst areas. The model solves the 
-% daily water balance. 
+% water balance at daily or sub-daily time step. 
 %
 % Compared to its previous version VarKarst (Hartmann et al., 2015),
 % V2Karst:
@@ -19,7 +19,7 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %
 % USAGE:
 % [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,Cont_area_d,time_sim] =...
-% V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,time,States_ini,Conc_flow,warmup)
+% V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,time,States_ini,Conc_flow,warmup,Kt)
 %
 % INPUTS:
 %
@@ -42,7 +42,7 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %             param(8) = z0 [m] (soil roughness length)   
 %             param(9) = rs_soi [s/m](soil surface 
 %                        resistance)
-%            param(10) = k [-] (Beer-Lambert’s law 
+%            param(10) = k [-] (Beer-Lambertâ€™s law 
 %                        extinction coefficient)    
 %            param(11) = Ve [mm] (Maximum storage 
 %                        capacity of first soil layer)
@@ -61,16 +61,18 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 % 
 % INPUTS DATA: (H is the length of the simulation period)
 %         P = daily precipitation                             - vector(H,1)
-%        Rn = daily net radiation [MJ/m2/d]                   - vector(H,1)
-%        Ta = mean daily air temperature                      - vector(H,1)  
-%             or matrix of minimum (Ta(:,1)) and maximum     or vector(H,2)
-%             (Ta(:,2)) daily air temperature [°C]     
+%        Rn = net radiation [MJ/m2/step]                      - vector(H,1)
+%        Ta = mean air temperature                            - vector(H,1)
+%             or matrix of mean (Ta(:,1)),                   or vector(H,3)    
+%             minimum(Ta(:,2))and maximum(Ta(:,3))
+%             temperature [Â°C]   
+%            (see Note below)
+%       RH = mean relative humidity                           - vector(H,1)
+%            or matrix of mean (RH(:,1)),                    or vector(H,3) 
+%            minimum (RH(:,2))and maximum(RH(:,3)) 
+%            relative humidity [%]   
 %             (see Note below)
-%        RH = mean daily relative humidity                    - vector(H,1)
-%             or matrix of minimum (RH(:,1))and              or vector(H,2)
-%             maximum(RH(:,2)) daily relatve humidity [%]
-%             (see Note below)
-%          G = daily ground heat flux [MJ/m2/d]               - vector(H,1)
+%          G = ground heat flux [MJ/m2/step]                  - vector(H,1)
 %         WS = daily wind speed [m/s]                         - vector(H,1)
 %       time = time vector of date numbers                    - vector(H,1)
 % INTIAL STATES:
@@ -92,6 +94,8 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %                   is lost as surface runoff (no concentation flow)
 %     warmup = warmup period to be discarded in the simulations    - scalar
 %              [months]
+%         Kt = time conversion factor [s/time step]                - scalar 
+%              At daily time step 3600*24 s/d
 %
 % OUTPUTS:(H_sim is the length of the simulation period 
 %          excluding the warmup period)
@@ -164,11 +168,11 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %
 % Bohn, T. J., and E. R. Vivoni (2016), Process-based characterization of 
 % evapotranspiration sources over the North American monsoon region, Water 
-% Resour. Res., 52(1), 358–384, doi:10.1002/2015WR017934.
+% Resour. Res., 52(1), 358â€“384, doi:10.1002/2015WR017934.
 %
 % Hartmann, A., T. Gleeson, R. Rosolem, F. Pianosi, Y. Wada, and T. Wagener 
 % (2015), A large-scale simulation model to assess karstic groundwater recharge 
-% over Europe and the Mediterranean, Geosci. Model Dev., 8(6), 1729–1746, 
+% over Europe and the Mediterranean, Geosci. Model Dev., 8(6), 1729â€“1746, 
 % doi:10.5194/gmd-8-1729-2015.
 % 
 % Neitsch, S.L., Arnold, J.G., Kiniry, J.R., Williams, J.R., (2009), 
@@ -176,29 +180,28 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 % Technical Report no. 406. Texas Water Resources Institute, College Station. 
 % Texas. 
 %
-% Ruiz, L., M. R. R. Varma, M. S. M. Kumar, M. Sekhar, J.-C. Maréchal, M. 
+% Ruiz, L., M. R. R. Varma, M. S. M. Kumar, M. Sekhar, J.-C. MarÃ©chal, M. 
 % Descloitres, J. Riotte, S. Kumar, C. Kumar, and J.-J. Braun (2010), 
 % Water balance modelling in a tropical watershed under deciduous forest 
 % (Mule Hole, India): Regolith matric storage buffers the groundwater 
-% recharge process, J. Hydrol., 380(3–4), 460–472, 
+% recharge process, J. Hydrol., 380(3â€“4), 460â€“472, 
 % doi:10.1016/j.jhydrol.2009.11.020.
 %
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2017), V2Karst: 
+% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2018), V2Karst: 
 % A parsimonious large-scale integrated vegetation-recharge model to  
 % simulate the impact of climate and land cover change in karst regions. 
 % Geosci. Model Dev. In review.
 %
 % Van Dijk, A. I. J. M., and L. A. Bruijnzeel (2001), Modelling rainfall 
 % interception by vegetation of variable density using an adapted analytical 
-% model. Part 1. Model description, J. Hydrol., 247(3), 230–238, 
+% model. Part 1. Model description, J. Hydrol., 247(3), 230â€“238, 
 % doi:10.1016/S0022-1694(01)00392-4.
 
-% This function is part the V2Karst model (Sarrazin et al., 2017). 
+% This function is part the V2Karst model (Sarrazin et al., 2018). 
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% December 2017 (fanny.sarrazin@bristol.ac.uk).
-
+% August 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Check and recover inputs
@@ -240,8 +243,8 @@ if size(time,2)~=1 || size(P,2)~=1 || size(Rn,2)~=1 || size(G,2)~=1 ||...
         size(WS,2)~=1 
     error('''time'',''P'',''Rn'',''G'' and''WS'' must be column vectors')
 end
-if ~any(size(Ta,2)==[1 2]) || ~any(size(RH,2)==[1 2])
-    error('''Ta'' and ''RH'' must have 1 or 2 columns')
+if ~any(size(Ta,2)==[1 3]) || ~any(size(RH,2)==[1 3])
+    error('''Ta'' and ''RH'' must have 1 or 3 columns')
 end
 H=size(P,1); % length of simulation period
 if size(time,1)~=H || size(Rn,1)~=H || size(G,1)~=H || size(WS,1)~=H ||...
@@ -273,6 +276,8 @@ if ~any(Conc_flow==[0 1]);error('''Conc_flow'' must be equal to 0 or 1');end
 if ~isscalar(warmup);error('''warmup'' must be scalar');end
 if mod(warmup,1)~=0;error('''warmup'' must be a integer');end
 if warmup<0;error('''warmup'' must be a positive');end
+if Kt<0 || Kt-round(Kt)~=0;error('Kt should be a positive integer');end
+if Kt>86400; error('Kt must be below or equal to 86400 (simulations can be daily or subdaily');end
 
 %--------------------------------------------------------------------------
 % 2. Define constant parameters
@@ -338,16 +343,16 @@ rs_can = rs_st./(LAI./fc);
 % 5.4 Potential evapotranspiration rates
 %--------------------------------------------------------------------------
 % Potential canopy interception [mm]
-Ecan_pot = Penman_Monteith(0,ra_can,Rn,Ta,RH,G,Pa); 
+Ecan_pot = Penman_Monteith_V1_2_Kt(0,ra_can,Rn,Ta,RH,G,Pa,Kt); 
 % Potential transpiration [mm]
-T_pot = Penman_Monteith(rs_can,ra_can,Rn,Ta,RH,G,Pa); 
+T_pot = Penman_Monteith_V1_2_Kt(rs_can,ra_can,Rn,Ta,RH,G,Pa,Kt); 
 % Potential soil evaporation [mm]
-Es_pot = Penman_Monteith(rs_soi,ra_soi,Rn,Ta,RH,G,Pa);
+Es_pot = Penman_Monteith_V1_2_Kt(rs_soi,ra_soi,Rn,Ta,RH,G,Pa,Kt);
 
 %--------------------------------------------------------------------------
 % 6. Evaporation from canopy interception
 %--------------------------------------------------------------------------
-[Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot);
+[Tf,t_wet,Ecan_act] = interception_routine_V1_2_Kt(Vcan,LAI,fc,P,Ecan_pot,Kt);
 
 %--------------------------------------------------------------------------
 % 7. Soil and epikarst water balance
@@ -365,8 +370,9 @@ Year_month = unique(date_vec(:,1:2),'rows'); % months of the simulation
                                              % period (including warmup)
 Year_month_warm = Year_month(warmup+1:end,:); % months of the simulation 
                                               % period (excluding warmup)
-% First day following the warmup period                                             
-idx_start = find(ismember(date_vec(:,1:3),[Year_month_warm(1,:) 1],'rows')>0);
+% First day following the warmup period  
+idx_start = find(ismember(date_vec(:,1:4),[Year_month_warm(1,:) 1 0],'rows')>0);
+%idx_start = find(ismember(date_vec(:,1:3),[Year_month_warm(1,:) 1],'rows')>0);
 % Time vector for simulation period excluding warmup
 time_sim=time(idx_start:end);
 
@@ -380,4 +386,5 @@ FLUXES_d = [P(idx_start:end),Ecan_act(idx_start:end),...
            T_pot(idx_start:end)];
 STATES_d = STATES(idx_start:end,:);
 Cont_area_d = Cont_area(idx_start:end);
+
 
