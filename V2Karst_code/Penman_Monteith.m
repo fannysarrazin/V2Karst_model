@@ -10,7 +10,7 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 % INPUTS: 
 % rs = surface resistance [s/m]                     - scalar or vector(H,1)
 % ra = aerodynamic resistance [s/m]                 - scalar or vector(H,1)
-% Rn = daily net radiation [MJ/m2/d]                          - vector(H,1)
+% Rn = daily net radiation [MJ/m2/step]                       - vector(H,1)
 % Ta = mean air temperature                                   - vector(H,1)
 %      or matrix of mean (Ta(:,1)),                          or vector(H,3)    
 %      minimum(Ta(:,2))and maximum (Ta(:,3)temperature [°C]   
@@ -20,7 +20,7 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 %      minimum (RH(:,2))and maximum(RH(:,3)) 
 %      relative humidity [%]   
 %      (see Note below)
-%  G = daily ground heat flux [MJ/m2/d]                       - vector(H,1)
+%  G = daily ground heat flux [MJ/m2/step]                    - vector(H,1)
 % Pa = atmospheric pressure [kPa]                   - scalar or vector(H,1)
 % Kt = conversion factor to estimate aerodynamic                    -scalar 
 %      component (Allen et al., 1998 p.26) [s/step]
