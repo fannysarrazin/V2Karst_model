@@ -29,5 +29,5 @@ This function evaluates the daily/sub-daily aerodynamic resistance.
 **- LAI_seasonality.m**<br />
 This function evaluates the daily/sub-daily value of LAI.
 
-[![DOI](https://zenodo.org/badge/114650321.svg)](https://zenodo.org/badge/latestdoi/114650321)
+DOI for latest version (V1.1):
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1484282.svg)](https://doi.org/10.5281/zenodo.1484282)
