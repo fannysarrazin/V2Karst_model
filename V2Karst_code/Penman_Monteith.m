@@ -1,8 +1,7 @@
 function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 
-% This function calculates potential evapotranspiration rate 
-% using the Penman Monteith equation (Monteith, 1965) for daily or subdaily
-% time step.
+% This function calculates potential evapotranspiration rate using the 
+% Penman Monteith equation (Monteith, 1965) for daily or subdaily time step.
 %
 % USAGE: 
 % E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
@@ -13,7 +12,7 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 % Rn = daily net radiation [MJ/m2/step]                       - vector(H,1)
 % Ta = mean air temperature                                   - vector(H,1)
 %      or matrix of mean (Ta(:,1)),                          or vector(H,3)    
-%      minimum(Ta(:,2))and maximum (Ta(:,3)temperature [°C]   
+%      minimum(Ta(:,2))and maximum (Ta(:,3)temperature [Â°C]   
 %     (see Note below)
 % RH = mean relative humidity                                 - vector(H,1)
 %      or matrix of mean (RH(:,1)),                          or vector(H,3) 
@@ -43,24 +42,20 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 % Paper 56, Food and Agriculture Organization (FAO), Rome, Italy.
 %
 % Monteith, J. L.(1965), Evaporation and environment, Symp. Soc. Exp. Biol., 
-% 19, 205–234.
-%
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2017), V2Karst: 
-% A parsimonious large-scale integrated vegetation-recharge model to  
-% simulate the impact of climate and land cover change in karst regions. 
-% Geosci. Model Dev. In review.
+% 19, 205-234.
 %
 % Shuttleworth, W. J.(1993), Evapotranspiration, in Handbook of Hydrology, 
 % edited by D. R. Maidment, p. 4.1-4.53, McGraw-Hill inc., New York.
 %
 % Shuttleworth, J. W. (2012), Terrestrial Hydrometeorology, John Wiley & 
 % Sons, Ltd, Chichester, UK.
-
-% This function is part the V2Karst model (Sarrazin et al., 2017). 
+%
+% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
+% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% August 2018 (fanny.sarrazin@bristol.ac.uk).
+% November 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Prepare variables 
@@ -72,7 +67,7 @@ nb_RH=size(RH,2); % number of colums in relative humidity input
 % 2. Define constant parameters
 %--------------------------------------------------------------------------
 cp = 1.013*10^(-3); % specific heat of air at constant pressure for moist  
-                    % air [MJ/kg/°C]
+                    % air [MJ/kg/Â°C]
 epsilon = 0.622; % ratio molecular weight of water vapour/dry air [-]
 R = 0.287; % specific gas constant [kJ/kg/K]
 
@@ -85,14 +80,14 @@ R = 0.287; % specific gas constant [kJ/kg/K]
 %--------------------------------------------------------------------------
 % Formula used in Sarrazin et al., (2018) (Shuttleworth, 1993, Eq.(4.2.1))
 lambda = 2.501-0.002361*Ta(:,1);% [MJ/kg] 
-% Other option: simplication for a temperature of 20°C (Allen et al., 1998, p.3)
+% Other option: simplication for a temperature of 20Â°C (Allen et al., 1998, p.3)
 % lambda=2.45; % [MJ/kg] 
 
 %--------------------------------------------------------------------------
 % 3.2 Psychrometric constant (Shuttleworth, 1993, Eq.(4.2.28); 
 %     Allen et al, 1998, Eq.(8))
 %--------------------------------------------------------------------------
-gamma = cp*Pa./(lambda*epsilon); % [kPa/°C] 
+gamma = cp*Pa./(lambda*epsilon); % [kPa/Â°C] 
 
 %--------------------------------------------------------------------------
 % 3.3 Saturation vapour pressure (Shuttleworth, 1993, Eq.(4.2.2); 
@@ -120,7 +115,7 @@ end
 % (Shuttleworth, 1993, Eq.(4.2.3); Allen et al., 1998, Eq.(13))
 %--------------------------------------------------------------------------
 delta = 4098*0.6108*exp((17.27*Ta(:,1))./(Ta(:,1)+237.3))./((Ta(:,1)+237.3).^2); 
-% [kPa/°C] 
+% [kPa/Â°C] 
 
 %--------------------------------------------------------------------------
 % 3.6 Atmospheric density (Allen et al., 1998, Eq.(3.6))
