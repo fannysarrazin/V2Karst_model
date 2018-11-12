@@ -30,3 +30,4 @@ This function evaluates the daily/sub-daily aerodynamic resistance.
 This function evaluates the daily/sub-daily value of LAI.
 
 [![DOI](https://zenodo.org/badge/114650321.svg)](https://zenodo.org/badge/latestdoi/114650321)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1484282.svg)](https://doi.org/10.5281/zenodo.1484282)
