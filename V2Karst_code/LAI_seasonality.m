@@ -1,6 +1,6 @@
 function [LAI_d,LAI_m] = LAI_seasonality(LAI_max,LAI_min,time)
 
-% This function calculates the daily value of LAI.
+% This function calculates the daily or sub-daily value of LAI.
 % Monthly LAI is computed using a continuous, piecewise linear function 
 % of LAI_max and LAI_min similar to the function proposed by Allen et al. 
 % (1998) to assess the seasonality in crop factors.
@@ -14,7 +14,7 @@ function [LAI_d,LAI_m] = LAI_seasonality(LAI_max,LAI_min,time)
 % LAI_max = Annual maximum leaf area index [m2/m2]                 - scalar
 %    time = time vector of date numbers of the period for  
 %           which daily leaf area index will be calculated    - vector(H,1)
-%
+%           (dates at the beginning of the time steps)
 % OUTPUTS:
 %   LAI_d = daily LAI [m2/m2]                                 - vector(H,1)
 %   LAI_m = monthly LAI [m2/m2](Hm is the number of months   - vector(Hm,1)                                
@@ -22,23 +22,19 @@ function [LAI_d,LAI_m] = LAI_seasonality(LAI_max,LAI_min,time)
 % NOTE: this function assumes that LAI is equal to its maximum value 
 % in June, July and August, and to its minimum value in December, January
 % and February.
-
+%
 % REFERENCES:
-% Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998),Crop evapotranspiration: 
-% Guidelines for computing crop requirements, FAO Irrigation and Drainage 
-% Paper 56, Food and Agriculture Organization (FAO), Rome, Italy.
+% Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998),Crop 
+% evapotranspiration:  Guidelines for computing crop requirements, FAO 
+% Irrigation and Drainage Paper 56, Food and Agriculture Organization 
+% (FAO), Rome, Italy
 %
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2017), V2Karst: 
-% A parsimonious large-scale integrated vegetation-recharge model to  
-% simulate the impact of climate and land cover change in karst regions. 
-% Geosci. Model Dev. In review.
-%
-
-% This function is part the V2Karst model (Sarrazin et al., 2017). 
+% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
+% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% December 2017 (fanny.sarrazin@bristol.ac.uk).
+% November 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Define the different seasons 
