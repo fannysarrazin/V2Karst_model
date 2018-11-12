@@ -1,8 +1,8 @@
 # V2Karst_model
 
-V2Karst is a large-scale conceptual semi-distributed model that simulates daily potential groundwater recharge in karst regions. The model includes an explicit representation of both karst and land cover properties, which allows to assess the combined impact of future changes in climate and land cover on karst groundwater recharge. The model builds on its previous version (Varkarst), which had a simple formulation of evapotranspiration and did not represent explicitly land cover properties.
+V2Karst is a large-scale conceptual semi-distributed model that simulates sub-daily (from V1.1) and daily potential groundwater recharge in karst regions. The model includes an explicit representation of both karst and land cover properties, which allows assessment of the combined impact of future changes in climate and land cover on karst groundwater recharge. The model builds on its previous version (Varkarst), which had a simple formulation of evapotranspiration and did not represent explicitly land cover properties.
 
-A complete description of VarKarst is provided in [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in [Sarrazin et al. (2018)](https://www.geosci-model-dev-discuss.net/gmd-2017-315/). If you make use of the V2Karst, please acknowledge these two articles.
+A complete description of VarKarst is provided in [Hartmann et al. (2015)](https://doi.org/10.5194/gmd-8-1729-2015) and a description of V2Karst in [Sarrazin et al. (in review)](https://www.geosci-model-dev-discuss.net/gmd-2017-315/). If you make use of the V2Karst, please acknowledge these two articles.
 
 V2Karst is provided under the terms of the GNU General Public License version 3.0 and therefore **without warranty of any kind**.
 
@@ -15,18 +15,18 @@ This function simulates the V2Karst model and calls the other 5 functions (inter
 **This is the function that users need to call to simulate V2Karst.**
 
 **- interception_routine.m**<br />
-The function evaluates daily actual evaporation from canopy interception.
+The function evaluates daily/sub-daily actual evaporation from canopy interception.
 
 **- soil_epikarst_routine.m**
-This function evaluates the daily soil and epikarst water balance.
+This function evaluates the daily/sub-daily soil and epikarst water balance.
 
 **- Penman_Monteith.m**<br />
-This function evaluates the daily potential evapotranspiration using the Penman Monteith equation.
+This function evaluates the daily/sub-daily potential evapotranspiration using the Penman Monteith equation.
 
 **- aerodynamic_resistance.m**<br />
-This function evaluates the daily aerodynamic resistance.
+This function evaluates the daily/sub-daily aerodynamic resistance.
 
 **- LAI_seasonality.m**<br />
-This function evaluates the daily value of LAI.
+This function evaluates the daily/sub-daily value of LAI.
 
 [![DOI](https://zenodo.org/badge/114650321.svg)](https://zenodo.org/badge/latestdoi/114650321)
