@@ -1,12 +1,13 @@
 function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 
 % The function estimates actual evaporation from canopy interception.
-% For daily time step, the formulation is similar to the daily threshold 
+% - For daily time step, the formulation is similar to the daily threshold 
 % model proposed by (Savenije, 1997; de Groen, 2002; Gerrits, 2010) and do 
 % not consider the carry-over of interception from one day to the next 
 % (all precipitation which is not evaporated reaches the ground as 
-% throughfall). The carry-over of the interception storage is considered
-% for sub-daily time steps.
+% throughfall). 
+% - For sub-daily time steps, interception storage is carried over from one
+% simulation time step to the next. 
 %
 % USAGE:
 % [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
@@ -34,13 +35,13 @@ function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 %             in the funciton soil_epikarst_routine.m)
 % Ecan_act = daily actual evaporation from canopy
 %             interception [mm]                               - vector(H,1)
-% Kt = time conversion factor [s/time step]                        - scalar 
-%      At daily time step 3600*24 s/d
+%       Kt = time conversion factor [s/time step]             - scalar 
+%            for daily time step 3600*24 s/d
 %
 % REFERENCES:
 % Bohn, T. J., and E. R. Vivoni (2016), Process-based characterization of 
 % evapotranspiration sources over the North American monsoon region, Water 
-% Resour. Res., 52(1), 358–384, doi:10.1002/2015WR017934.
+% Resour. Res., 52(1), 358â€“384, doi:10.1002/2015WR017934.
 %
 % De Groen, M. M.(2002), Modelling interception and transpiration at monthly 
 % time steps: introducing daily variability through Markov chains, Ph.D. 
@@ -50,23 +51,19 @@ function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 % thesis, Delft University of Technology, Delft, The Netherlands.
 % 
 % Kergoat, L. (1998), A model for hydrological equilibrium of leaf area 
-% index on a global scale, J. Hydrol.,212–213, 268–286, 
+% index on a global scale, J. Hydrol.,212-213, 268-286, 
 % doi:10.1016/S0022-1694(98)00211-X.
-%
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2018), V2Karst: 
-% A parsimonious large-scale integrated vegetation-recharge model to  
-% simulate the impact of climate and land cover change in karst regions. 
-% Geosci. Model Dev. In review.
 %
 % Savenije, H. H. G. (1997), Determination of evaporation from a catchment 
 % water balance at a monthly time scale, Hydrol. Earth Syst. Sci., 1(1), 
-% 93–100, doi:10.5194/hess-1-93-1997.
-
-% This function is part the V2Karst model (Sarrazin et al., 2018). 
+% 93-100, doi:10.5194/hess-1-93-1997.
+%
+% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
+% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% August 2018 (fanny.sarrazin@bristol.ac.uk).
+% November 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Prepare variables
@@ -125,10 +122,10 @@ for t=1:H
     % Throughfall
     Tf(t) = max(P(t)-Ecan_act(t)-(Ic(t)-Ic_0)*fc(t),0);
     
-    % Code check
-    if round(Tf(t)*10^8)>round(P(t)*(1-fc(t))*10^8) && Ic(t)<Vcan_max && Kt<86400
-        error('throughfall with unsaturated canopy')
-    end
+    % Checks for code debugging
+%     if round(Tf(t)*10^8)>round(P(t)*(1-fc(t))*10^8) && Ic(t)<Vcan_max && Kt<86400
+%         error('throughfall with unsaturated canopy')
+%     end
 
     % Assess the fraction of time step with wet canopy 
     if Ecan_pot(t)==0 
