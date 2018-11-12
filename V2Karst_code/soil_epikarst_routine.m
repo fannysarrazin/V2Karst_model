@@ -3,8 +3,8 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
     Es_pot,t_wet,Vsoi1_ini,Vsoi2_ini,Vsoi3_ini,Vepi_ini,Conc_flow)
 
 % This function simulates the soil and epikarst routine of the V2Karst
-% model and evaluate the daily soil and epikarst water balance for the 
-% different model vertical compartments.
+% model and evaluate the daily or sub-daily soil and epikarst water balance 
+% for the different model vertical compartments.
 %
 % USAGE:
 % [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
@@ -28,12 +28,14 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %        Vepi = Mean epikarst storage capacity [mm]                - scalar
 %        Kepi = Mean epikarst outflow coefficient [d]              - scalar
 %           n = number of model vertical compartments [-]          - scalar
+%
 % INPUT DATA:
 %          Tf = daily throughfall (fraction of precipitation
 %               that reaches the ground) [mm]                 - vector(H,1)
 %       T_pot = daily potential transpiration [mm]            - vector(H,1)
 %      Es_pot = daily potential soil evaporation [mm]         - vector(H,1)
 %       t_wet = fraction of the day with wet canopy [-]       - vector(H,1)
+%
 % INITIAL STATES:
 %  Vsoi1_ini = initial moisture in soil layer 1 
 %              [in % saturation of the deepest soil compartment]   - scalar
@@ -84,36 +86,34 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %              flow to the epikarst (contributing areas)[-]
 %
 % NOTES:
-% - Initial condition: All compartments initially store the same depth of 
-% water, except for shallow compartments for which the initial condition 
-% may exceed their storage capacity.
+% - Initial condition: all compartments initially store the same depth of 
+%   water, except for shallow compartments for which the initial condition 
+%   is equal to their storage capacity when the initial condition exceed
+%   the storage capacity.
 % - Inputs should verify: Ve < Vr < Vsoi_max(n) where Vsoi_max(n) is the 
-% total storage capacity of the deepest soil compartment.
+%   total storage capacity of the deepest soil compartment.
 % 
 % REFERENCES:
 % Hartmann, A., T. Gleeson, R. Rosolem, F. Pianosi, Y. Wada, and T. Wagener 
 % (2015), A large-scale simulation model to assess karstic groundwater 
 % recharge over Europe and the Mediterranean, Geosci. Model Dev., 8(6), 
-% 1729–1746, doi:10.5194/gmd-8-1729-2015.
+% 1729â€“1746, doi:10.5194/gmd-8-1729-2015.
 %
 % Penman, H. L. (1950), The dependance of transpiration on weather and soil 
-% conditions, J. Soil Sci., 1(1), 74–89, 
+% conditions, J. Soil Sci., 1(1), 74â€“89, 
 % doi:10.1111/j.1365-2389.1950.tb00720.x.
 %
 % Rimmer, A. and Hartmann, A. (2012), Simplified conceptual structures and 
 % analytical solutions for groundwater discharge using reservoir equations, 
-% in Water resources management and modeling, edited by P. Nayak , InTech, Kakinada, India., 217–238 2012.
+% in Water resources management and modeling, edited by P. Nayak , InTech, 
+% Kakinada, India., 217â€“238 2012.
 %
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2017), V2Karst: 
-% A parsimonious large-scale integrated vegetation-recharge model to  
-% simulate the impact of climate and land cover change in karst regions. 
-% Geosci. Model Dev. In review.
-
-% This function is part the V2Karst model (Sarrazin et al., 2017). 
+% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
+% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% December 2017 (fanny.sarrazin@bristol.ac.uk).
+% November 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Prepare parameters
