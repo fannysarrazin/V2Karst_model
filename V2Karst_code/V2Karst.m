@@ -3,9 +3,9 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
           V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,time,...
           States_ini,Conc_flow,warmup,Kt)
 
-% This function simulates the V2Karst model (Sarrazin et al., 2018), which
-% is a vegetation-recharge model for karst areas. The model solves the 
-% water balance at daily or sub-daily time step. 
+% This function simulates the V2Karst model V1.1, which is a vegetation-
+% recharge model for karst areas. The model solves the water balance at 
+% daily or sub-daily time step. 
 %
 % Compared to its previous version VarKarst (Hartmann et al., 2015),
 % V2Karst:
@@ -16,65 +16,70 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 % (3) comprises three soil layers
 % (4) uses the Penman Monteith equation to compute potential
 %      evapotranspiration.
+% (5) allows for both daily and sub-daily simulations (only daily
+%     simulations were possible for VarKarst.
 %
 % USAGE:
 % [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,Cont_area_d,time_sim] =...
-% V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,time,States_ini,Conc_flow,warmup,Kt)
+%               V2Karst(param,n,zm,zh,z,P,Rn,Ta,RH,G,WS,...
+%                       time,States_ini,Conc_flow,warmup,Kt)
 %
 % INPUTS:
 %
 % PARAMETERS:
-%      param = value of model parameters                     - vector(1,15) 
-%             param(1) = h_veg [m] (Vegetation height)  
-%             param(2) = rs_st [s/m] (Stomatal resistance)
-%             param(3) = LAI_min [%](Reduction in leaf area 
-%                        index in the dormant season  
-%                        compared to the growing season)
-%             param(4) = LAI_max [m2/m2] (Annual maximum 
-%                        leaf area index during growing
-%                        season)
-%             param(5) = Vr [mm] (Maximum storage capacity 
-%                        of the rooting zone) 
-%             param(6) = Vcan [mm per unit of LAI]
-%                       (Canopy storage capacity)   
-%             param(7) = f_red [-] (reduction factor for 
-%                        transpiration in soil layer 3)  
-%             param(8) = z0 [m] (soil roughness length)   
-%             param(9) = rs_soi [s/m](soil surface 
-%                        resistance)
-%            param(10) = k [-] (Beer-Lambert’s law 
-%                        extinction coefficient)    
-%            param(11) = Ve [mm] (Maximum storage 
-%                        capacity of first soil layer)
-%            param(12) = a [-] (Spatial variability 
-%                        parameter)
-%            param(13) = Vsoi [mm] (Mean soil storage 
+%        param = value of model parameters                     - vector(1,15) 
+%               param(1) = h_veg [m] (Vegetation height)  
+%               param(2) = rs_st [s/m] (Stomatal resistance)
+%               param(3) = LAI_min [%](Reduction in leaf area 
+%                          index in the dormant season  
+%                          compared to the growing season)
+%               param(4) = LAI_max [m2/m2] (Annual maximum 
+%                          leaf area index during growing
+%                          season)
+%               param(5) = Vr [mm] (Maximum storage capacity 
+%                          of the rooting zone) 
+%               param(6) = Vcan [mm per unit of LAI]
+%                         (Canopy storage capacity)   
+%               param(7) = f_red [-] (reduction factor for 
+%                          transpiration in soil layer 3)  
+%               param(8) = z0 [m] (soil roughness length)   
+%               param(9) = rs_soi [s/m](soil surface 
+%                          resistance)
+%              param(10) = k [-] (Beer-Lambertâ€™s law 
+%                          extinction coefficient)    
+%              param(11) = Ve [mm] (Maximum storage 
+%                          capacity of first soil layer)
+%              param(12) = a [-] (Spatial variability 
+%                          parameter)
+%              param(13) = Vsoi [mm] (Mean soil storage 
 %                        capacity)
-%            param(14) = Vepi [mm] (Mean epikarst storage 
-%                        capacity)
-%            param(15) = Kepi [d] (Mean epikarst outflow 
-%                        coefficient)
-%          n = number of model vertical compartments [-]           - scalar
-%         zm = height of wind speed measurements [m]               - scalar
-%         zh = height of humidity measurements [m]                 - scalar
-%          z = elevation [m]                                       - scalar
+%              param(14) = Vepi [mm] (Mean epikarst storage 
+%                          capacity)
+%              param(15) = Kepi [d] (Mean epikarst outflow 
+%                          coefficient)
+%            n = number of model vertical compartments [-]         - scalar
+%           zm = height of wind speed measurements [m]             - scalar
+%           zh = height of humidity measurements [m]               - scalar
+%            z = elevation [m]                                     - scalar
 % 
 % INPUTS DATA: (H is the length of the simulation period)
-%         P = daily precipitation                             - vector(H,1)
-%        Rn = net radiation [MJ/m2/step]                      - vector(H,1)
-%        Ta = mean air temperature                            - vector(H,1)
-%             or matrix of mean (Ta(:,1)),                   or vector(H,3)    
-%             minimum(Ta(:,2))and maximum(Ta(:,3))
-%             temperature [°C]   
-%            (see Note below)
-%       RH = mean relative humidity                           - vector(H,1)
-%            or matrix of mean (RH(:,1)),                    or vector(H,3) 
-%            minimum (RH(:,2))and maximum(RH(:,3)) 
-%            relative humidity [%]   
+%           P = daily precipitation                           - vector(H,1)
+%          Rn = net radiation [MJ/m2/step]                    - vector(H,1)
+%          Ta = mean air temperature                          - vector(H,1)
+%               or matrix of mean (Ta(:,1)),                 or vector(H,3)    
+%               minimum(Ta(:,2))and maximum(Ta(:,3))
+%               temperature [Â°C]   
+%              (see Note below)
+%         RH = mean relative humidity                         - vector(H,1)
+%              or matrix of mean (RH(:,1)),                  or vector(H,3) 
+%              minimum (RH(:,2))and maximum(RH(:,3)) 
+%              relative humidity [%]   
 %             (see Note below)
 %          G = ground heat flux [MJ/m2/step]                  - vector(H,1)
 %         WS = daily wind speed [m/s]                         - vector(H,1)
-%       time = time vector of date numbers                    - vector(H,1)
+%       time = time vector of date numbers (dates at          - vector(H,1)
+%              the beginning of the time steps) 
+%
 % INTIAL STATES:
 % States_ini = vector of inital states                        - vector(1,4)
 %             (% saturation of deeper vertical compartment)   
@@ -95,7 +100,7 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %     warmup = warmup period to be discarded in the simulations    - scalar
 %              [months]
 %         Kt = time conversion factor [s/time step]                - scalar 
-%              At daily time step 3600*24 s/d
+%              for daily time step 3600*24 s/d
 %
 % OUTPUTS:(H_sim is the length of the simulation period 
 %          excluding the warmup period)
@@ -147,61 +152,62 @@ function [Q_epi_d,ET_act_d,Q_surf_d,FLUXES_d,STATES_d,...
 %
 % NOTES:
 % - Inputs should verify: Ve < Vr < Vsoi_max(n) where Vsoi_max(n) is the 
-% total storage capacity of the deepest soil compartment.
+%   total storage capacity of the deepest soil compartment.
 % - It is recommended to assess the Penman Monteith potential 
-% evapotranspiration using minimum and maximum daily temperature and 
-% minimum and maximum daily relative humidity due to the non-linearity  
-% of the relationships (Allen et al., 1998).
+%   evapotranspiration using minimum and maximum daily temperature and 
+%   minimum and maximum daily relative humidity due to the non-linearity  
+%   of the relationships (Allen et al., 1998).
 % - Ground heat flux can be neglected at daily time scale (Allen et al.,
-% 1998; Shuttleworth, 2012).
+%   1998; Shuttleworth, 2012).
 % - Wind speed, humidity and temperature must be provided above the
-% vegetation
-% - Initial condition: All compartments initially store the same depth of 
-% water, except for shallow compartments for which the initial condition 
-% may exceed their storage capacity.
+%   vegetation.
+% - Initial condition: all compartments initially store the same depth of 
+%   water, except for shallow compartments for which the initial condition 
+%   is equal to their storage capacity when the initial condition exceed
+%   the storage capacity.
+% - the seasonality of leaf area index (function LAI_seasonality) is 
+%   calculated assuming  LAI is equal to its maximum value in June, July 
+%   and August, and to its minimum value in December, January and February.
 %
 % REFERENCES:
 %
-% Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998),Crop evapotranspiration: 
-% Guidelines for computing crop requirements, FAO Irrigation and Drainage 
-% Paper 56, Food and Agriculture Organization (FAO), Rome, Italy.
+% Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998),Crop 
+% evapotranspiration: Guidelines for computing crop requirements, FAO 
+% Irrigation and Drainage Paper 56, Food and Agriculture Organization 
+% (FAO), Rome, Italy.
 %
 % Bohn, T. J., and E. R. Vivoni (2016), Process-based characterization of 
 % evapotranspiration sources over the North American monsoon region, Water 
-% Resour. Res., 52(1), 358–384, doi:10.1002/2015WR017934.
+% Resour. Res., 52(1), 358-384, doi:10.1002/2015WR017934.
 %
 % Hartmann, A., T. Gleeson, R. Rosolem, F. Pianosi, Y. Wada, and T. Wagener 
-% (2015), A large-scale simulation model to assess karstic groundwater recharge 
-% over Europe and the Mediterranean, Geosci. Model Dev., 8(6), 1729–1746, 
-% doi:10.5194/gmd-8-1729-2015.
+% (2015), A large-scale simulation model to assess karstic groundwater 
+% recharge over Europe and the Mediterranean, Geosci. Model Dev., 8(6), 
+% 1729-1746, doi:10.5194/gmd-8-1729-2015.
 % 
 % Neitsch, S.L., Arnold, J.G., Kiniry, J.R., Williams, J.R., (2009), 
 % Soil and Water Assessment Tool Theoretical Documentation - Version 2009,
-% Technical Report no. 406. Texas Water Resources Institute, College Station. 
-% Texas. 
+% Technical Report no. 406. Texas Water Resources Institute, College  
+% Station. Texas. 
 %
-% Ruiz, L., M. R. R. Varma, M. S. M. Kumar, M. Sekhar, J.-C. Maréchal, M. 
+% Ruiz, L., M. R. R. Varma, M. S. M. Kumar, M. Sekhar, J.-C. Marechal, M. 
 % Descloitres, J. Riotte, S. Kumar, C. Kumar, and J.-J. Braun (2010), 
 % Water balance modelling in a tropical watershed under deciduous forest 
 % (Mule Hole, India): Regolith matric storage buffers the groundwater 
-% recharge process, J. Hydrol., 380(3–4), 460–472, 
+% recharge process, J. Hydrol., 380(3-4), 460-472, 
 % doi:10.1016/j.jhydrol.2009.11.020.
 %
-% Sarrazin, F., A. Hartmann, F. Pianosi, and T. Wagener (2018), V2Karst: 
-% A parsimonious large-scale integrated vegetation-recharge model to  
-% simulate the impact of climate and land cover change in karst regions. 
-% Geosci. Model Dev. In review.
-%
 % Van Dijk, A. I. J. M., and L. A. Bruijnzeel (2001), Modelling rainfall 
-% interception by vegetation of variable density using an adapted analytical 
-% model. Part 1. Model description, J. Hydrol., 247(3), 230–238, 
+% interception by vegetation of variable density using an adapted  
+% analytical model. Part 1. Model description, J. Hydrol., 247(3), 230-238, 
 % doi:10.1016/S0022-1694(01)00392-4.
-
-% This function is part the V2Karst model (Sarrazin et al., 2018). 
+%
+% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
+% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
 % This function was prepared by Fanny Sarrazin, University of Bristol,
-% August 2018 (fanny.sarrazin@bristol.ac.uk).
+% November 2018 (fanny.sarrazin@bristol.ac.uk).
 
 %--------------------------------------------------------------------------
 % 1. Check and recover inputs
@@ -343,16 +349,16 @@ rs_can = rs_st./(LAI./fc);
 % 5.4 Potential evapotranspiration rates
 %--------------------------------------------------------------------------
 % Potential canopy interception [mm]
-Ecan_pot = Penman_Monteith_V1_2_Kt(0,ra_can,Rn,Ta,RH,G,Pa,Kt); 
+Ecan_pot = Penman_Monteith(0,ra_can,Rn,Ta,RH,G,Pa,Kt); 
 % Potential transpiration [mm]
-T_pot = Penman_Monteith_V1_2_Kt(rs_can,ra_can,Rn,Ta,RH,G,Pa,Kt); 
+T_pot = Penman_Monteith(rs_can,ra_can,Rn,Ta,RH,G,Pa,Kt); 
 % Potential soil evaporation [mm]
-Es_pot = Penman_Monteith_V1_2_Kt(rs_soi,ra_soi,Rn,Ta,RH,G,Pa,Kt);
+Es_pot = Penman_Monteith(rs_soi,ra_soi,Rn,Ta,RH,G,Pa,Kt);
 
 %--------------------------------------------------------------------------
 % 6. Evaporation from canopy interception
 %--------------------------------------------------------------------------
-[Tf,t_wet,Ecan_act] = interception_routine_V1_2_Kt(Vcan,LAI,fc,P,Ecan_pot,Kt);
+[Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt);
 
 %--------------------------------------------------------------------------
 % 7. Soil and epikarst water balance
@@ -372,7 +378,6 @@ Year_month_warm = Year_month(warmup+1:end,:); % months of the simulation
                                               % period (excluding warmup)
 % First day following the warmup period  
 idx_start = find(ismember(date_vec(:,1:4),[Year_month_warm(1,:) 1 0],'rows')>0);
-%idx_start = find(ismember(date_vec(:,1:3),[Year_month_warm(1,:) 1],'rows')>0);
 % Time vector for simulation period excluding warmup
 time_sim=time(idx_start:end);
 
