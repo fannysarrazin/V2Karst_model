@@ -34,7 +34,7 @@ This function evaluates the daily/sub-daily effective precipitation (Pre_eff) fr
 
 **- net_radiation.m**<br />
 This function function evaluated net radiation from downward longwave and shortwave radiation, surface albedo and air temperature as a proxy for surface temperature.
-The assumption that air temperature is a proxy for surface temperature has only been tested for daily time step. When net radiation has to be calculated from downward radiations, **we recommend to use a daily time step (and NOT sub-daily) to simulate V2Karst**.
+The assumption that air temperature is a proxy for surface temperature has only been tested for daily time step. **When net radiation has to be calculated from downward radiations, we recommend to use a daily time step (and NOT sub-daily) to simulate V2Karst**.
 
 Additional functions are provided to process the input data, as reported below.
 
@@ -46,7 +46,7 @@ This function computes relative daily/sub-daily humidity and wind speed at a ble
 This function computes relative humidity at a blending height.
 
 **- WS_blending_height.m**<br />
-This function computes wind speed at a blending height
+This function computes wind speed at a blending height.
 
 DOI for latest version (V1.1):
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1484282.svg)](https://doi.org/10.5281/zenodo.1484282)
