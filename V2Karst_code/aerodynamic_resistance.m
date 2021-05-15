@@ -10,12 +10,12 @@ function ra = aerodynamic_resistance(zom,zoh,d,WS,zm,zh)
 % zom = roughness length for momentum transfer [m]            - scalar
 % zoh = roughness length for heat and vapor transfer [m]      - scalar
 %   d = zero plane displacement height [m]                    - scalar              
-%  WS = daily wind speed [m/s]                                - vector(H,1)
+%  WS = wind speed [m s-1]                                    - vector(H,1)
 %  zm = height of wind speed measurements [m]                 - scalar
 %  zh = height of humidity measurements [m]                   - scalar
 % 
 % OUTPUTS:
-% ra = aerodynamic resistance [s/m]                           - vector(H,1)
+% ra = aerodynamic resistance [s m-1]                         - vector(H,1)
 %
 % REFERENCES:
 % Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998),Crop 
@@ -23,12 +23,11 @@ function ra = aerodynamic_resistance(zom,zoh,d,WS,zm,zh)
 % Irrigation and Drainage Paper 56, Food and Agriculture Organization 
 % (FAO), Rome, Italy
 %
-% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
-% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
+% This function is part of the V2Karst model by F. Sarrazin, A. Hartmann, 
+% F. Pianosi, R. Rosolem, T. Wagener (2018, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
-% This function was prepared by Fanny Sarrazin, University of Bristol,
-% November 2018 (fanny.sarrazin@bristol.ac.uk).
+% This function was prepared by Fanny Sarrazin (fanny.sarrazin@ufz.de).
 
 % Define constant parameters
 k = 0.41; % von Karman constant [-]

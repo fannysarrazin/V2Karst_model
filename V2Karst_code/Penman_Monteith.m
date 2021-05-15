@@ -7,32 +7,31 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 % E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 %
 % INPUTS: 
-% rs = surface resistance [s/m]                     - scalar or vector(H,1)
-% ra = aerodynamic resistance [s/m]                 - scalar or vector(H,1)
-% Rn = daily net radiation [MJ/m2/step]                       - vector(H,1)
-% Ta = mean air temperature                                   - vector(H,1)
+% rs = surface resistance [s m-1]                   - scalar or vector(H,1)
+% ra = aerodynamic resistance [s m-1]               - scalar or vector(H,1)
+% Rn = net radiation [MJ m-2 T-1]                             - vector(H,1)
+% Ta = mean air temperature [deg C]                           - vector(H,1)
 %      or matrix of mean (Ta(:,1)),                          or vector(H,3)    
-%      minimum(Ta(:,2))and maximum (Ta(:,3)temperature [Â°C]   
+%      minimum(Ta(:,2))and maximum (Ta(:,3)temperature [deg C]   
 %     (see Note below)
-% RH = mean relative humidity                                 - vector(H,1)
+% RH = mean relative humidity [%]                            - vector(H,1)
 %      or matrix of mean (RH(:,1)),                          or vector(H,3) 
-%      minimum (RH(:,2))and maximum(RH(:,3)) 
-%      relative humidity [%]   
+%      minimum (RH(:,2))and maximum(RH(:,3)) [%]   
 %      (see Note below)
-%  G = daily ground heat flux [MJ/m2/step]                    - vector(H,1)
+%  G = ground heat flux [MJ m-2 T-1]                          - vector(H,1)
 % Pa = atmospheric pressure [kPa]                   - scalar or vector(H,1)
 % Kt = conversion factor to estimate aerodynamic                    -scalar 
-%      component (Allen et al., 1998 p.26) [s/step]
+%      component (Allen et al., 1998 p.26) [s T-1]
 %      At daily time step 3600*24 s/d
 %
 % OUTPUTS:
-% E_pot = daily potential evapotranspiration [mm]               - vect(H,1)
+% E_pot = potential evapotranspiration [mm T-1]                 - vect(H,1)
 %
 % NOTES ON INPUT DATA: 
-% - It is recommended to compute the saturation vapour pressure using daily 
-% minimum and maximum temperature and actual vapour pressure using daily 
-% minimum and maximum relative humidity due to the non-linearity of the 
-% relationships (Allen et al., 1998).
+% - For daily time step, it is recommended to compute the saturation vapour 
+% pressure using daily  minimum and maximum temperature and actual vapour 
+% pressure using daily  minimum and maximum relative humidity due to the 
+% non-linearity of the relationships (Allen et al., 1998).
 % - Ground heat flux can be neglected at daily time scale (Allen et al.,
 % 1998; Shuttleworth, 2012).
 %
@@ -50,12 +49,11 @@ function E_pot = Penman_Monteith(rs,ra,Rn,Ta,RH,G,Pa,Kt)
 % Shuttleworth, J. W. (2012), Terrestrial Hydrometeorology, John Wiley & 
 % Sons, Ltd, Chichester, UK.
 %
-% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
-% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
+% This function is part of the V2Karst model by F. Sarrazin, A. Hartmann, 
+% F. Pianosi, R. Rosolem, T. Wagener (2018, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
-% This function was prepared by Fanny Sarrazin, University of Bristol,
-% November 2018 (fanny.sarrazin@bristol.ac.uk).
+% This function was prepared by Fanny Sarrazin (fanny.sarrazin@ufz.de).
 
 %--------------------------------------------------------------------------
 % 1. Prepare variables 
@@ -67,9 +65,9 @@ nb_RH=size(RH,2); % number of colums in relative humidity input
 % 2. Define constant parameters
 %--------------------------------------------------------------------------
 cp = 1.013*10^(-3); % specific heat of air at constant pressure for moist  
-                    % air [MJ/kg/Â°C]
+                    % air [[MJ kg-1 C-1]
 epsilon = 0.622; % ratio molecular weight of water vapour/dry air [-]
-R = 0.287; % specific gas constant [kJ/kg/K]
+R = 0.287; % specific gas constant [kJ kg-1 K-1]
 
 %--------------------------------------------------------------------------
 % 3. Assess variables used in Penman Monteith equation
@@ -80,14 +78,14 @@ R = 0.287; % specific gas constant [kJ/kg/K]
 %--------------------------------------------------------------------------
 % Formula used in Sarrazin et al., (2018) (Shuttleworth, 1993, Eq.(4.2.1))
 lambda = 2.501-0.002361*Ta(:,1);% [MJ/kg] 
-% Other option: simplication for a temperature of 20Â°C (Allen et al., 1998, p.3)
+% Other option: simplication for a temperature of 20 C (Allen et al., 1998, p.3)
 % lambda=2.45; % [MJ/kg] 
 
 %--------------------------------------------------------------------------
 % 3.2 Psychrometric constant (Shuttleworth, 1993, Eq.(4.2.28); 
 %     Allen et al, 1998, Eq.(8))
 %--------------------------------------------------------------------------
-gamma = cp*Pa./(lambda*epsilon); % [kPa/Â°C] 
+gamma = cp*Pa./(lambda*epsilon); % [kPa C-1] 
 
 %--------------------------------------------------------------------------
 % 3.3 Saturation vapour pressure (Shuttleworth, 1993, Eq.(4.2.2); 
@@ -115,19 +113,22 @@ end
 % (Shuttleworth, 1993, Eq.(4.2.3); Allen et al., 1998, Eq.(13))
 %--------------------------------------------------------------------------
 delta = 4098*0.6108*exp((17.27*Ta(:,1))./(Ta(:,1)+237.3))./((Ta(:,1)+237.3).^2); 
-% [kPa/Â°C] 
+% [kPa C-1] 
 
 %--------------------------------------------------------------------------
 % 3.6 Atmospheric density (Allen et al., 1998, Eq.(3.6))
 %--------------------------------------------------------------------------
 TK = (Ta(:,1)+273.15);% temperature [K], uses mean air temperature
 TKv = TK./(1-0.378*ea./Pa); % Virtual temperature [K]
-ro_a = Pa./(R*TKv); % atmospheric density [kg/m3]
+ro_a = Pa./(R*TKv); % atmospheric density [kg m-3]
 
 %--------------------------------------------------------------------------
 % 4. Assess Potential evapotranspiration
 %--------------------------------------------------------------------------
 E_pot = max((delta.*(Rn-G)+Kt*ro_a.*cp.*(es-ea)./ra)./(lambda.*(delta+gamma.*(1+rs./ra))),0);
 
-% Check variables
+%--------------------------------------------------------------------------
+% 5. Check variables
+%--------------------------------------------------------------------------
 if any(isnan(E_pot));error('''E_pot'' contains NaNs');end
+if any(isnan(E_pot<0));error('''E_pot'' contains negative values');end

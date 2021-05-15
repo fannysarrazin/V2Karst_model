@@ -14,7 +14,7 @@ function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 %
 % INPUTS
 % PARAMETERS:
-%       LAI = Canopy leaf area index [m2/m2]
+%       LAI = Canopy leaf area index [m2 m-2]
 %             - if constant                                   - scalar
 %             - if variable in time                           - vector(H,1)
 %      Vcan = Canopy storage capacity [mm per unit of LAI]    - scalar
@@ -23,20 +23,20 @@ function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 %             - if variable in time                           - vector(H,1)
 %
 % INPUT DATA:
-%         P = daily precipitation                             - vector(H,1)
-%  Ecan_pot = daily potential evaporation from canopy     
-%             interception [mm]                               - vector(H,1)
+%         P = precipitation [mm T-1]                          - vector(H,1)
+%  Ecan_pot = potential evaporation from canopy     
+%             interception [mm T-1]                           - vector(H,1)
 %
 % OUTPUTS:
-%       Tf = daily throughfall (fraction of precipitation 
-%            that reaches the ground) [mm]                    - vector(H,1)                   
-%    t_wet = fraction of the day with wet canopy [-]          - vector(H,1)
+%       Tf = throughfall (fraction of precipitation 
+%            that reaches the ground) [mm T-1]                - vector(H,1)                   
+%    t_wet = fraction of the time step with wet canopy [-]    - vector(H,1)
 %            (this will be used to assess transpiration
-%             in the funciton soil_epikarst_routine.m)
-% Ecan_act = daily actual evaporation from canopy
-%             interception [mm]                               - vector(H,1)
-%       Kt = time conversion factor [s/time step]             - scalar 
-%            for daily time step 3600*24 s/d
+%             in the function soil_epikarst_routine.m)
+% Ecan_act = actual evaporation from canopy
+%             interception [mm T-1]                           - vector(H,1)
+%       Kt = time conversion factor [s T-1]                   - scalar 
+%            for daily time step 3600*24 s d-1
 %
 % REFERENCES:
 % Bohn, T. J., and E. R. Vivoni (2016), Process-based characterization of 
@@ -58,12 +58,11 @@ function [Tf,t_wet,Ecan_act] = interception_routine(Vcan,LAI,fc,P,Ecan_pot,Kt)
 % water balance at a monthly time scale, Hydrol. Earth Syst. Sci., 1(1), 
 % 93-100, doi:10.5194/hess-1-93-1997.
 %
-% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
-% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
+% This function is part of the V2Karst model by F. Sarrazin, A. Hartmann, 
+% F. Pianosi, R. Rosolem, T. Wagener (2018, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
-% This function was prepared by Fanny Sarrazin, University of Bristol,
-% November 2018 (fanny.sarrazin@bristol.ac.uk).
+% This function was prepared by Fanny Sarrazin (fanny.sarrazin@ufz.de).
 
 %--------------------------------------------------------------------------
 % 1. Prepare variables
@@ -76,7 +75,7 @@ if isscalar(fc);fc = fc*ones(H,1);end
 % 2. Initialise variables
 %--------------------------------------------------------------------------
 
-Ecan_act = nan(H,1); % Actual evaporation from interception [mm]
+Ecan_act = nan(H,1); % Actual evaporation from interception [mm T-1]
 Tf = nan(H,1); % Throughfall [mm]
 t_wet = nan(H,1); % Fraction of day with wet canopy [-]
 Ic       = zeros(H,1); % Interception storage over the vegetated fraction
@@ -101,7 +100,7 @@ for t=1:H
     % Effective canopy storage capacity over the vegetated fraction
     %(cell average LAI is rescaled to the vegetated fraction following 
     % Bohn and Vivoni, 2016)
-    Vcan_max = Vcan*(LAI(t)./fc(t)); % [m2/m2] over vegetated fraction
+    Vcan_max = Vcan*(LAI(t)./fc(t)); % [m2 m-2] over vegetated fraction
     
     % Evaporation from interception store is limited by the potential rate
     % and storage capacity (value over vegetated fraction)

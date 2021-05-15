@@ -1,5 +1,5 @@
-function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
-    soil_epikarst_routine(fc,f_red,Vr,Ve,a,Vsoi,Vepi,Kepi,n,Tf,T_pot,...
+function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area,Delta_V]=...
+    soil_epikarst_routine(fc,f_red,Vr,Ve,a,Vsoi,Vepi,Kepi,n,P_eff,T_pot,...
     Es_pot,t_wet,Vsoi1_ini,Vsoi2_ini,Vsoi3_ini,Vepi_ini,Conc_flow)
 
 % This function simulates the soil and epikarst routine of the V2Karst
@@ -8,7 +8,7 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %
 % USAGE:
 % [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
-%     soil_epikarst_routine(fc,f_red,Vr,Ve,a,Vsoi,Vepi,Kepi,n,Tf,T_pot,...
+%     soil_epikarst_routine(fc,f_red,Vr,Ve,a,Vsoi,Vepi,Kepi,n,P_eff,T_pot,...
 %     Es_pot,t_wet,Vsoi1_ini,Vsoi2_ini,Vsoi3_ini,Vepi_ini,Conc_flow)
 %
 % INPUTS
@@ -30,11 +30,12 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %           n = number of model vertical compartments [-]          - scalar
 %
 % INPUT DATA:
-%          Tf = daily throughfall (fraction of precipitation
-%               that reaches the ground) [mm]                 - vector(H,1)
-%       T_pot = daily potential transpiration [mm]            - vector(H,1)
-%      Es_pot = daily potential soil evaporation [mm]         - vector(H,1)
-%       t_wet = fraction of the day with wet canopy [-]       - vector(H,1)
+%       P_eff = effective precipitation that infiltrates in - vector(H,1)
+%               the soil (after accounting for interception
+%               and change in snow pack) [mm T-1]                 
+%       T_pot = potential transpiration [mm T-1]              - vector(H,1)
+%      Es_pot = potential soil evaporation [mm T-1]           - vector(H,1)
+%       t_wet = fraction of the time step with wet canopy [-] - vector(H,1)
 %
 % INITIAL STATES:
 %  Vsoi1_ini = initial moisture in soil layer 1 
@@ -54,14 +55,13 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %                 - Conc_run = 0: compartment saturation excess
 %                   is lost as runoff (no concentation flow)           
 % OUTPUTS
-%  Q_epi_avg = average daily recharge over all                - vector(H,1)
-%              compartments [mm]
-% ETsoi_act_avg = average daily sum of actual transpiration   - vector(H,1)
+%  Q_epi_avg = average recharge over all compartments [mm T-1]- vector(H,1)              
+% ETsoi_act_avg = average sum of actual transpiration         - vector(H,1)
 %                 and soil evaporation over all compartments 
-%                 [mm]
-% Q_surf_avg = average daily surface runoff over all          - vector(H,1)
-%              compartments [mm]
-%     STATES = average daily state variables over all         - vector(H,6)
+%                 [mm T-1]
+% Q_surf_avg = average surface runoff over all                - vector(H,1)
+%              compartments [mm T-1]
+%     STATES = average state variables over all               - vector(H,6)
 %              compartments [% saturation]
 %              STATES(:,1) = total soil water storage
 %              STATES(:,2) = epikarst water storage
@@ -70,7 +70,7 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %              STATES(:,4) = soil water storage in layer 1
 %              STATES(:,5) = soil water storage in layer 2
 %              STATES(:,6) = soil water storage in layer 3
-%     FLUXES = average daily fluxes over all compartments [mm]- vector(H,6)              
+%     FLUXES = average fluxes over all compartments [mm T-1]  - vector(H,6)              
 %              FLUXES(:,1) = actual soil evaporation
 %              FLUXES(:,2) = actual transpiration in soil 
 %                            layer 1
@@ -81,7 +81,7 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 %              FLUXES(:,5) = lateral flow (flow from saturated 
 %                            to unsaturated compartments)
 %              FLUXES(:,6) = soil saturation excess
-%  Cont_area = daily Number of compartments in which          - vector(H,1)
+%  Cont_area = Number of compartments in which                - vector(H,1)
 %              the soil generates a saturation excess 
 %              flow to the epikarst (contributing areas)[-]
 %
@@ -108,12 +108,11 @@ function [Q_epi_avg,ETsoi_act_avg,Q_surf_avg,STATES,FLUXES,Cont_area]=...
 % in Water resources management and modeling, edited by P. Nayak , InTech, 
 % Kakinada, India., 217–238 2012.
 %
-% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
-% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
+% This function is part of the V2Karst model by F. Sarrazin, A. Hartmann, 
+% F. Pianosi, R. Rosolem, T. Wagener (2018, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
-% This function was prepared by Fanny Sarrazin, University of Bristol,
-% November 2018 (fanny.sarrazin@bristol.ac.uk).
+% This function was prepared by Fanny Sarrazin (fanny.sarrazin@ufz.de).
 
 %--------------------------------------------------------------------------
 % 1. Prepare parameters
@@ -154,7 +153,7 @@ end
 % 1.2 Depth of the 3 soil layers 
 %--------------------------------------------------------------------------
 % Check that Ve < Vr < Vsoi_max(n)
-if Ve >= Vr || Vr >= Vsoi_max(n)
+if Ve > Vr || Vr > Vsoi_max(n)
     error('''Ve'' must be lower than ''Vr'' which is turn must be lower than ''Vsoi_max(n)''')
 end
 
@@ -184,7 +183,7 @@ Vsoi3_max=max(Vsoi3_max,0);
 %--------------------------------------------------------------------------
 % 1.3 Prepare vegetated cover fraction
 %--------------------------------------------------------------------------
-H = size(Tf,1); % length of simulation horizon
+H = size(P_eff,1); % length of simulation horizon
 if isscalar(fc);fc = fc*ones(H,1);end
 
 %--------------------------------------------------------------------------
@@ -213,7 +212,9 @@ Q_epi       = nan(H,n); % groundwater recharge [mm]
 Q_lat       = zeros(H,n); % lateral flow [mm]
 Q_surf_avg  = zeros(H,1); % average surface runoff across all 
                           % compartments [mm]
-
+Delta_V     = nan(H,1); % variation in water storage compared to initial 
+                        % condition [mm]
+                        
 %--------------------------------------------------------------------------
 % 3. Soil and epikarst routine
 %--------------------------------------------------------------------------
@@ -240,12 +241,12 @@ for t=1:H
     %---------------------------------------------------------------------
     
     Es_act_dummy = (1-fc(t))*Es_pot(t)*min(Vsoi1_0./Vsoi1_max,1,'includenan');
-    % Evaporation cannot be higher than available moisture Vsoi1_0 + Tf(t)
-    Es_act(t,:) = min(Es_act_dummy,Vsoi1_0 + Tf(t),'includenan');
+    % Evaporation cannot be higher than available moisture Vsoi1_0 + P_eff(t)
+    Es_act(t,:) = min(Es_act_dummy,Vsoi1_0 + P_eff(t),'includenan');
     
     % Update available moisture in layer 1 with soil evaporation
     % (soil evaporation has priority over transpiration)
-    Vsoi1_dummy = Vsoi1_0 + Tf(t) - Es_act(t,:);
+    Vsoi1_dummy = Vsoi1_0 + P_eff(t) - Es_act(t,:);
     
     %----------------------------------------------------------------------
     % 3.3 Transpiration:
@@ -405,6 +406,16 @@ for t=1:H
 %         error('error in the runoff routine')
 %     end
 %     if Conc_flow==0 && any(Q_lat(t,:)~=0);error('Concentation flow is occurring');end
+
+    %----------------------------------------------------------------------
+    % 3.8 Assess variation in water storage compared to initial condition
+    %---------------------------------------------------------------------
+    
+    Delta_V(t) = mean(Vsoi1(t,:) + Vsoi2(t,:) + Vsoi3(t,:) + Vepi(t,:) -...
+        min(Vsoi1_ini/100*Vsoi1_max(n),Vsoi1_max,'includenan')-...
+        min(Vsoi2_ini/100*Vsoi2_max(n),Vsoi2_max,'includenan')- ...
+        min(Vsoi3_ini/100*Vsoi3_max(n),Vsoi3_max,'includenan')-...
+        min(Vepi_ini/100*Vepi_max(n),Vepi_max,'includenan'));
     
 end
 

@@ -11,13 +11,13 @@ function [LAI_d,LAI_m] = LAI_seasonality(LAI_max,LAI_min,time)
 % INPUTS:
 % LAI_min = Reduction in leaf area index in the dormant season
 %           compared to the growing season [%]                     - scalar
-% LAI_max = Annual maximum leaf area index [m2/m2]                 - scalar
+% LAI_max = Annual maximum leaf area index [m2 m-2]                - scalar
 %    time = time vector of date numbers of the period for  
-%           which daily leaf area index will be calculated    - vector(H,1)
+%           which leaf area index will be calculated          - vector(H,1)
 %           (dates at the beginning of the time steps)
 % OUTPUTS:
-%   LAI_d = daily LAI [m2/m2]                                 - vector(H,1)
-%   LAI_m = monthly LAI [m2/m2](Hm is the number of months   - vector(Hm,1)                                
+%   LAI_d = daily/sub-daily LAI [m2 m-2]                      - vector(H,1)
+%   LAI_m = monthly LAI [m2 m-2](Hm is the number of months   - vector(Hm,1)                                
 % 
 % NOTE: this function assumes that LAI is equal to its maximum value 
 % in June, July and August, and to its minimum value in December, January
@@ -29,12 +29,11 @@ function [LAI_d,LAI_m] = LAI_seasonality(LAI_max,LAI_min,time)
 % Irrigation and Drainage Paper 56, Food and Agriculture Organization 
 % (FAO), Rome, Italy
 %
-% This function is part of the V2Karst model V1.1 by F. Sarrazin, A. 
-% Hartmann, F. Pianosi, R. Rosolem, T. Wagener (2019, Geosci. Model Dev.)
+% This function is part of the V2Karst model by F. Sarrazin, A. Hartmann, 
+% F. Pianosi, R. Rosolem, T. Wagener (2018, Geosci. Model Dev.)
 % V2Karst is provided under the terms of the GNU General Public License 
 % version 3.0.
-% This function was prepared by Fanny Sarrazin, University of Bristol,
-% November 2018 (fanny.sarrazin@bristol.ac.uk).
+% This function was prepared by Fanny Sarrazin (fanny.sarrazin@ufz.de).
 
 %--------------------------------------------------------------------------
 % 1. Define the different seasons 
@@ -54,7 +53,7 @@ LAI_m(spring) = LAI_min/100*LAI_max/4*(6-spring)+LAI_max/4*(spring-2);
 LAI_m(autumn) = LAI_min/100*LAI_max/4*(autumn-8)+LAI_max/4*(12-autumn);
 
 %--------------------------------------------------------------------------
-% 3. Assess daily LAI
+% 3. Assess LAI
 %--------------------------------------------------------------------------
 LAI_d = nan(length(time),1); % Initialise variable
 date_vec = datevec(time);
@@ -64,6 +63,8 @@ for m=1:12
      LAI_d(idx_m) = LAI_m(m);
 end
 
-% Check variable
+%--------------------------------------------------------------------------
+% 3. Check variable
+%--------------------------------------------------------------------------
 if any(isnan(LAI_d));error('''LAI_d'' contains NaNs');end
 if any(LAI_d<0);error('''LAI_d'' contains negative values');end
