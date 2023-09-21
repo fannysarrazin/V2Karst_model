@@ -50,3 +50,6 @@ This function computes wind speed at a blending height.
 
 DOI for latest version (V1.1):
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1484282.svg)](https://doi.org/10.5281/zenodo.1484282)
+
+## Note on time input format
+The time input required by the model is a serial date number, which can be obtained using the *datenum* function of matlab. 
